@@ -1,9 +1,13 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { View, StyleSheet, Button, TextInput, Picker, Alert, Text, Platform } from 'react-native';
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import { addProduct } from "../actionCreators/product";
 import Constants from '../common';
 
 
-export default class AddProduct extends Component {
+class AddProduct extends Component {
     static navigationOptions = {
         title: "Add",
         headerStyle: {
@@ -15,47 +19,41 @@ export default class AddProduct extends Component {
             textAlign: "center"
         },
     }
-    
+
+    static defaultProps = {
+        alert: {},
+    };
+
     constructor(props) {
         super(props);
         this.state = {
-            title: '',
-            titleError: null,
-            category: 'Mobiles',
-            additionalInfo: '',
             categories: ['Mobiles', 'Laptops', 'Desktops', 'Others'],
-            price: ''
-        }
+            titleError: null,
+            category: false,
+            title: '',
+            additionalInfo: '',
+            price: '',
+        };
     }
 
     handleSubmit = () => {
-        let {
-            title,
-            category,
-            additionalInfo,
-            price
-        } = this.state;
+        let { title, category, additionalInfo, price } = this.state;
         if (!title) {
             this.setState({ titleError: 'Title is required' })
             return;
         }
-        fetch(`${Constants.baseUrl}/`, {
-            body: JSON.stringify({
-                title,
-                category,
-                additionalInfo,
-                price
-            }),
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json'
-            },
-        }).then(p => { Alert.alert('Success', 'Product Saved Successfully') })
+        let payload = JSON.stringify({ title, category, additionalInfo, price });
+        this.props.addProduct(payload);
+        let { message } = this.props.alert;
+        if (message !== undefined) {
+            Alert.alert('Success', message);
+        }
     }
 
     renderCategories = () => {
         return this.state.categories.map(c => <Picker.Item key={c} label={c} value={c} />)
     }
+
     render() {
         return (
             <View style={styles.container}>
@@ -90,8 +88,8 @@ export default class AddProduct extends Component {
                     keyboardType="number-pad"
                 />
                 <Picker
-                    selectedValue={this.state.language}
-                    onValueChange={(itemValue, itemIndex) => this.setState({ language: itemValue })}>
+                    selectedValue={this.state.category}
+                    onValueChange={(itemValue, itemIndex) => this.setState({ category: itemValue })}>
                     {this.renderCategories()}
                 </Picker>
                 <Button
@@ -102,6 +100,14 @@ export default class AddProduct extends Component {
         );
     }
 }
+
+function mapDispatchToProps(dispatch) {
+    return {
+        addProduct: bindActionCreators(addProduct, dispatch)
+    };
+}
+
+export default connect(null, mapDispatchToProps)(AddProduct);
 
 const styles = StyleSheet.create({
     container: {
