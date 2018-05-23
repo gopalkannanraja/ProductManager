@@ -17,26 +17,22 @@ export default (prevState = { products: [], product: {}, isLoading: false, isRef
             }
         case GET_PRODUCT:
             return {
-                ...prevState,
                 isLoading: true
             }
         case GET_PRODUCT_SUCCESS:
             return {
-                ...prevState,
                 isLoading: false,
-                product: action.product
+                product: action.product[0]
             }
         case ADD_PRODUCT:
             return {
-                ...prevState,
                 isLoading: true,
-                product: action.product
+                payload: action.payload
             }
         case ADD_PRODUCT_SUCCESS:
             return {
-                ...prevState,
                 isLoading: false,
-                product: action.product
+                success: action.success
             }
         case GET_PRODUCTS_FAILURE:
         case GET_PRODUCT_FAILURE:
@@ -48,6 +44,5 @@ export default (prevState = { products: [], product: {}, isLoading: false, isRef
             }
         default:
             return prevState;
-
     }
 }

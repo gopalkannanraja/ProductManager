@@ -52,17 +52,17 @@ export function getProductFailure(error) {
     }
 }
 
-export function addProduct(product) {
+export function addProduct(payload) {
     return {
         type: ADD_PRODUCT,
-        product
+        payload
     }
 }
 
-export function addProductSuccess(product) {
+export function addProductSuccess(success) {
     return {
         type: ADD_PRODUCT_SUCCESS,
-        product
+        success
     }
 }
 

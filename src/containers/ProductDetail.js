@@ -1,33 +1,35 @@
 import React from "react";
+import PropTypes from 'prop-types';
 import { View, Text, Image, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import { getProduct } from "../actionCreators/product";
 import Constants from '../common';
 
 
 class ProductDetail extends React.Component {
-    //static navigationOptions = { title: "Product Detail" };
     static navigationOptions = ({ navigation }) => ({
         title: `Product Detail for ${navigation.state.params.id}`
     });
 
-    constructor(props) {
-        super(props);
-        this.state = { product: {}, isLoading: false };
-    }
+    static defaultProps = {
+        product: {},
+        isLoading: false,
+        refreshing: false,
+    };
+
+    static propTypes = {
+        product: PropTypes.object,
+        isLoading: PropTypes.bool,
+    };
 
     componentDidMount() {
-        this.setState({ isLoading: true });
         let { id } = this.props.navigation.state.params;
-        console.log(id);
-        fetch(`${Constants.baseUrl}/?id=${id}`)
-            .then(r => r.json())
-            .then(product =>
-                this.setState({ product: product[0], isLoading: false })
-            );
+        this.props.getProduct(id);
     }
 
     renderProduct() {
-        const { navigation } = this.props;
-        const { product } = this.state;
+        const { navigation, product } = this.props;
         return (<View>
             <Image
                 source={product.image ? { uri: `${Constants.baseUrl}/images/${product.image}` } : require("../assets/barcode.png")}
@@ -42,10 +44,10 @@ class ProductDetail extends React.Component {
     }
 
     render() {
-
+        const { isLoading } = this.props;
         return (
             <View style={styles.container}>
-                {this.state.isLoading ? (
+                {isLoading ? (
                     <ActivityIndicator size="large" color="#ef87ab" />
                 ) : (
                         this.renderProduct()
@@ -54,6 +56,21 @@ class ProductDetail extends React.Component {
         );
     }
 }
+
+function mapStateToProps(state) {
+    return {
+        product: state.productState.product,
+        isLoading: state.productState.isLoading
+    };
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        getProduct: bindActionCreators(getProduct, dispatch)
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProductDetail);
 
 const styles = StyleSheet.create({
     container: {
@@ -67,5 +84,3 @@ const styles = StyleSheet.create({
         padding: 10
     }
 });
-
-export default ProductDetail;
