@@ -17,10 +17,12 @@ export default (prevState = { products: [], product: {}, isLoading: false, isRef
             }
         case GET_PRODUCT:
             return {
+                ...prevState,
                 isLoading: true
             }
         case GET_PRODUCT_SUCCESS:
             return {
+                ...prevState,
                 isLoading: false,
                 product: action.product[0]
             }
